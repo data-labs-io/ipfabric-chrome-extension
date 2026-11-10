@@ -1,4 +1,4 @@
-# IP Fabric — Global Search + LLM Interactive Session + CVE + Diff Dashboard
+# IP Fabric Chrome Extension — Global Search + LLM Interactive Session + CVE Security Status + Diff Dashboard
 
 A single **Manifest V3** Chrome extension that overlays four tools directly onto
 the IP Fabric web UI:
