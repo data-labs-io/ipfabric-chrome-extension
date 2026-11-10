@@ -1,0 +1,881 @@
+/* overlay.css - styled to blend with the IP Fabric UI (host page).
+ *
+ * Palette sampled from the IP Fabric demo screenshot:
+ *   - Header bar:   #254083  (IP Fabric brand indigo)
+ *   - Body / cards: #ffffff
+ *   - Light gray:   #f1f2f4
+ *   - Hairline:     #e1e4e8
+ *
+ * The bar is full-width and 48px tall, matching the visual weight of
+ * the host's existing #254083 navigation header. The bar appears as a
+ * second stacked row of that header. The dropdown below it carries
+ * the white-on-light styling that mirrors the host's content area.
+ */
+
+:root {
+  --brand: #254083;
+  --brand-deep: #1d3469;
+  --brand-light: #3a5aa3;
+  --brand-on: #ffffff;
+  --brand-on-dim: #b8c4dd;
+
+  --bg-page: #ffffff;
+  --bg-soft: #f6f8fa;
+  --bg-row-hover: #f1f2f4;
+  --border: #d0d7de;
+  --border-soft: #e1e4e8;
+  --text: #24292e;
+  --text-dim: #57606a;
+  --text-faint: #6e7781;
+
+  --link: #254083;
+  --success: #1a7f37;
+  --success-soft: #dafbe1;
+  --danger: #cf222e;
+  --danger-soft: #ffebe9;
+  --warning: #9a6700;
+  --warning-soft: #fff8c5;
+  --purple: #8250df;
+  --purple-soft: #fbefff;
+
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
+body {
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.panel {
+  width: 100%;
+  /* No border-radius — the bar is flush with the viewport edges, like
+     the host's own header bar. */
+}
+
+/* =====================================================================
+   The bar (fixed 48px row of #254083, mirrors the IP Fabric header)
+   =================================================================== */
+
+.bar {
+  height: 48px;
+  background: var(--brand);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  /* Subtle drop line under the bar for definition without a shadow. */
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+}
+
+/* Two groups (Global Search left, LLM right) separated by a flexible
+   spacer. Each group lays its own controls out in a row. */
+.bar__group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;          /* allow inner inputs to shrink */
+  flex: 1 1 0;           /* each group shares the bar width */
+}
+.bar__group--gs  { justify-content: flex-start; }
+.bar__group--llm { justify-content: flex-end; }
+.bar__spacer { flex: 0 0 24px; }
+
+/* When one group is hidden, the other takes the whole bar. */
+body.hide-gs  .bar__group--gs,
+body.hide-gs  .dropdown--gs,
+body.hide-llm .bar__group--llm,
+body.hide-llm .dropdown--llm { display: none !important; }
+body.hide-gs  .bar__group--llm { flex: 1 1 100%; }
+body.hide-llm .bar__group--gs  { flex: 1 1 100%; }
+
+/* The CVE Security Status control lives on the host page (injected by
+   content.js), not in this bar. When the feature is hidden its results
+   dropdown here is suppressed too, mirroring the GS/LLM behavior. */
+body.hide-cve .dropdown--cve { display: none !important; }
+
+/* The restore group is hidden by default and only appears when ALL
+   THREE features (Global Search, LLM Interactive Session, and CVE
+   Security Status) are hidden, giving the user a way back into Options.
+   While any one of them is shown, that feature's own gear is reachable,
+   so the restore group is not needed. The bar itself stays visible in
+   the all-hidden state (so the gear is reachable). Note: the CVE control
+   lives on the host page (content.js), so its visibility is reflected
+   here via the body.hide-cve class set by applyVisibility(). */
+.bar__group--restore { display: none !important; }
+body.hide-gs.hide-llm.hide-cve .bar__group--restore { display: flex !important; flex: 1 1 100%; }
+/* Keep the bar visible even when all groups are hidden, so the restore
+   gear is reachable (previously the whole bar collapsed). */
+body.hide-gs.hide-llm.hide-cve .bar { display: flex; }
+/* The restore brand label uses normal casing (not the tiny uppercase). */
+.bar__brand--restore .bar__brand-label {
+  text-transform: none;
+  font-size: 12px;
+  color: var(--brand-on-dim);
+}
+
+.bar__brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--brand-on);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  flex-shrink: 0;
+}
+.bar__logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--brand-on);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.bar__brand-label {
+  white-space: nowrap;
+  color: var(--brand-on);
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+}
+
+/* Search input is a white "card" inside the dark bar, matching the
+   look of the host's filter inputs in the device inventory table. */
+
+.bar__search {
+  flex: 1 1 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 80px;
+  max-width: 800px;
+}
+/* LLM brand label keeps its readable size (not the tiny uppercase GS one). */
+.bar__brand--llm .bar__brand-label {
+  text-transform: none;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.bar__search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  color: var(--text-faint);
+  pointer-events: none;
+}
+.bar__input {
+  all: unset;
+  display: block;
+  width: 100%;
+  height: 30px;
+  padding: 0 32px 0 32px;
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
+  caret-color: var(--brand);
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.bar__input::placeholder { color: var(--text-faint); }
+.bar__input:focus {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18);
+}
+
+/* Clear-input button: tiny X inside the search box on the right.
+ * Visible only when there's a value to clear. Sits inside the input
+ * by absolute positioning. */
+.bar__clear {
+  all: unset;
+  cursor: pointer;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--text-faint);
+  background: transparent;
+  transition: background 100ms ease, color 100ms ease;
+}
+.bar__clear:hover {
+  color: var(--text);
+  background: var(--bg-soft);
+}
+.bar__clear:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+.bar__clear[hidden] { display: none; }
+
+.bar__btn {
+  all: unset;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0 16px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: var(--brand-on);
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.bar__btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.36);
+}
+.bar__btn:active { background: rgba(255, 255, 255, 0.08); }
+.bar__btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.bar__icon-btn {
+  all: unset;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--brand-on-dim);
+  transition: background 120ms ease, color 120ms ease;
+}
+.bar__icon-btn:hover {
+  color: var(--brand-on);
+  background: rgba(255, 255, 255, 0.1);
+}
+.bar__icon-btn:focus-visible {
+  outline: 2px solid var(--brand-on);
+  outline-offset: 1px;
+}
+/* The explicit display:inline-flex above would otherwise defeat the HTML
+   [hidden] attribute, so restore hiding for the results-toggle buttons. */
+.bar__icon-btn[hidden] { display: none !important; }
+/* Results-toggle button shows an "active" highlight while its results
+   panel is visible, so the user can tell it's currently open. */
+.bar__icon-btn.is-active {
+  color: var(--brand-on);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+/* =====================================================================
+   The dropdown (results panel below the bar)
+   =================================================================== */
+
+/* The two dropdowns sit side by side under their respective groups:
+   Global Search results under the left half, LLM results under the
+   right half. Each takes up to half the width and aligns to its side. */
+.dropdown-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.dropdown {
+  background: var(--bg-page);
+  border-bottom: 1px solid var(--border);
+  /* A subtle drop shadow so the dropdown reads as floating over the
+     host content while still feeling part of the chrome. */
+  box-shadow: 0 8px 24px -8px rgba(36, 64, 131, 0.18),
+              0 0 0 1px rgba(0, 0, 0, 0.02);
+  flex: 1 1 50%;
+  min-width: 0;
+  align-self: flex-start;
+}
+.dropdown--gs  { border-right: 1px solid var(--border-soft); }
+.dropdown--llm { }
+/* The CVE results dropdown always occupies its own full-width line below
+   the GS + LLM dropdowns (the row wraps), since the CVE Security Status
+   control is centered and independent of the two side tools.
+   The CVE Security Status control is a host-page element fixed on the IP
+   Fabric header row directly beneath this 48px bar (it is 52px tall). The
+   transparent top margin reserves that 52px band so the CVE results render
+   BELOW the control instead of behind it — the control (label + Evaluate,
+   results-toggle and gear buttons) stays fully visible and clickable.
+   The margin is transparent (not part of the dropdown's white background),
+   so the control shows through it. */
+.dropdown--cve {
+  flex: 1 1 100%;
+  margin-left: 0;
+  margin-top: 52px;
+  border-top: 1px solid var(--border-soft);
+}
+/* When the CVE Security Status control is present (CVE feature enabled),
+   any result dropdown that sits at the TOP of the row must start below the
+   52px control band so the centered host-page control never overlaps the
+   results. The GS/LLM dropdowns are the top row; give the displayed ones a
+   52px top margin (hidden ones are display:none, so the rule is inert).
+   When CVE is hidden, GS/LLM keep their original top position unchanged. */
+body:not(.hide-cve) .dropdown--gs:not([hidden]),
+body:not(.hide-cve) .dropdown--llm:not([hidden]) { margin-top: 52px; }
+/* The CVE dropdown wraps onto its own line. It only needs the 52px control
+   clearance when it is itself at the top of the row (i.e. no GS/LLM
+   dropdown is displayed above it). If a GS or LLM dropdown is displayed,
+   that dropdown already provides the clearance and the CVE dropdown sits
+   naturally below it, so drop the extra 52px to avoid a double gap. */
+.dropdown-row:has(.dropdown--gs:not([hidden])) .dropdown--cve,
+.dropdown-row:has(.dropdown--llm:not([hidden])) .dropdown--cve { margin-top: 0; }
+.dropdown[hidden] { display: none; }
+
+/* When only one feature is shown, its dropdown spans the full width. */
+body.hide-gs  .dropdown--llm,
+body.hide-llm .dropdown--gs { flex-basis: 100%; }
+
+/* If one dropdown is hidden but the other open, the open one still
+   anchors to its own side via margin-auto behavior of the row. */
+.dropdown--llm { margin-left: auto; }
+
+.results-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  background: var(--bg-soft);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.results-meta[hidden] { display: none; }
+.results-meta__primary { color: var(--text); font-weight: 500; }
+.results-meta__tool {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: white;
+  color: var(--text-dim);
+}
+
+.spacer { flex: 1; }
+
+.dropdown__close {
+  all: unset;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--text-faint);
+  transition: background 120ms ease, color 120ms ease;
+}
+.dropdown__close:hover {
+  color: var(--text);
+  background: var(--bg-row-hover);
+}
+
+/* Report actions (view in new tab / save as HTML file). Same footprint as
+   the close button; use the brand accent on hover to distinguish them. */
+.dropdown__report {
+  all: unset;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--text-faint);
+  transition: background 120ms ease, color 120ms ease;
+}
+.dropdown__report:hover {
+  color: var(--ipf-magenta, #c01f60);
+  background: var(--bg-row-hover);
+}
+
+.results {
+  /* Occupy roughly half the available screen height when visible, so more
+     results are visible without scrolling. We use --results-h (a pixel
+     value derived from the host's real window height, set by overlay.js)
+     because CSS `vh` inside this iframe resolves against the iframe's own
+     content-driven height, not the screen. 50vh is only a first-paint
+     fallback until HOST_INFO arrives. It scrolls internally when results
+     exceed this height; empty results collapse (see :empty below). */
+  height: var(--results-h, 50vh);
+  overflow: auto;
+  background: var(--bg-page);
+}
+.results:empty { display: none; }
+
+/* -------- status messages ---------------------------------------- */
+
+.status {
+  padding: 14px 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.status--error { color: var(--danger); }
+.status--muted { color: var(--text-faint); }
+
+.spinner {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--border-soft);
+  border-top-color: var(--brand);
+  animation: ipfSpin 0.7s linear infinite;
+}
+@keyframes ipfSpin { to { transform: rotate(360deg); } }
+
+/* =====================================================================
+   Tables (styled to echo the host's device inventory table)
+   =================================================================== */
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  background: white;
+}
+
+.data-table thead th {
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  padding: 8px 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.data-table tbody td {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 9px 12px;
+  color: var(--text);
+  vertical-align: top;
+}
+.data-table tbody tr:last-child td { border-bottom: 0; }
+
+.data-table tr.data-row {
+  cursor: pointer;
+  transition: background 100ms ease;
+}
+.data-table tr.data-row:hover { background: var(--bg-row-hover); }
+.data-table tr.data-row.expanded { background: var(--bg-soft); }
+.data-table tr.data-row.expanded + tr.data-row-detail { display: table-row; }
+
+/* Endpoint-table column widths */
+
+.th-expander, .td-expander { width: 28px; padding-left: 14px !important; padding-right: 0 !important; }
+.th-method,   .td-method   { width: 70px; }
+.th-path,     .td-path     { width: 28%; }
+.th-summary,  .td-summary  { width: 28%; }
+.th-tags,     .td-tags     { width: 16%; }
+.th-score,    .td-score    { width: 92px; }
+.th-ok,       .td-ok       { width: 32px; text-align: center; }
+.th-ok                    { text-align: center; }
+
+/* HTTP method chips */
+
+.method {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+.method--post   { background: #dde7ff; color: var(--brand); }
+.method--get    { background: var(--success-soft); color: var(--success); }
+.method--put    { background: var(--warning-soft); color: var(--warning); }
+.method--delete { background: var(--danger-soft);  color: var(--danger); }
+.method--patch  { background: var(--purple-soft);  color: var(--purple); }
+.method--head, .method--options { background: var(--bg-soft); color: var(--text-dim); }
+
+code.path {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: var(--bg-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--text);
+  word-break: break-all;
+  display: inline-block;
+  line-height: 1.45;
+}
+
+/* Path cell becomes a clickable deep-link to the UI page when we can
+ * match the API endpoint to a known IP Fabric table URL. The link is
+ * subtle by default and reveals brand colors on hover. */
+.path-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 3px;
+  transition: color 100ms ease;
+}
+.path-link:hover code.path {
+  background: #dde7ff;
+  color: var(--brand);
+}
+.path-link:hover .ext-icon { color: var(--brand); }
+.path-link:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.ext-icon {
+  width: 11px;
+  height: 11px;
+  color: var(--text-faint);
+  flex-shrink: 0;
+  transition: color 100ms ease;
+}
+
+/* Same affordance for the "UI page" entry in expanded detail rows. */
+.detail-link {
+  color: var(--brand);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  word-break: break-all;
+}
+.detail-link:hover { text-decoration: underline; }
+
+.td-summary { color: var(--text); }
+.td-tags {
+  color: var(--text-dim);
+  font-size: 11.5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Score bar + value */
+
+.score { display: flex; align-items: center; gap: 6px; }
+.score__bar {
+  flex: 1;
+  height: 4px;
+  background: var(--border-soft);
+  border-radius: 2px;
+  overflow: hidden;
+  min-width: 30px;
+  max-width: 44px;
+}
+.score__bar-fill {
+  height: 100%;
+  background: var(--brand);
+  border-radius: 2px;
+  width: 0;
+}
+.score__value {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+/* Expander chevron */
+
+.expander {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+  transition: transform 120ms ease, color 120ms ease;
+}
+.data-row.expanded .expander {
+  transform: rotate(90deg);
+  color: var(--brand);
+}
+
+/* OK indicator */
+.ok-yes { color: var(--success); font-weight: 700; }
+.ok-no  { color: var(--danger);  font-weight: 700; }
+
+/* Detail row */
+
+.data-row-detail { display: none; }
+.data-row-detail td {
+  background: var(--bg-soft) !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 12px 18px 14px 50px !important;
+}
+.detail-grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 6px 16px;
+}
+.detail-grid dt {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  padding-top: 2px;
+  font-weight: 600;
+}
+.detail-grid dd { margin: 0; font-size: 12.5px; color: var(--text); }
+.detail-grid dd code {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  background: white;
+  border: 1px solid var(--border-soft);
+  padding: 1px 5px;
+  border-radius: 3px;
+  word-break: break-all;
+}
+
+/* Generic table */
+
+.data-table--generic td {
+  font-size: 12px;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.data-table--generic td.cell-null { color: var(--text-faint); font-style: italic; }
+.data-table--generic td.cell-obj  { font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+
+/* -------- raw-content fallbacks ----------------------------------- */
+
+.code-block {
+  margin: 0;
+  padding: 12px 18px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-x: auto;
+  background: white;
+}
+.text-block {
+  padding: 12px 18px;
+  font-size: 13px;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: white;
+}
+
+.tk-key  { color: var(--brand); }
+.tk-str  { color: #0a3069; }
+.tk-num  { color: #953800; }
+.tk-bool { color: var(--danger); }
+.tk-null { color: var(--text-faint); }
+
+/* =====================================================================
+   Responsive — narrow viewports drop the brand label
+   =================================================================== */
+
+@media (max-width: 720px) {
+  .bar__brand-label { display: none; }
+  .bar { gap: 8px; padding: 0 10px; }
+  .bar__search { max-width: none; }
+  .th-tags, .td-tags { display: none; }
+}
+@media (max-width: 540px) {
+  .bar__brand { display: none; }
+  .th-summary, .td-summary { display: none; }
+}
+
+/* =====================================================================
+   Table-scan mode: live progress bar + matches list
+   =================================================================== */
+
+.scan-progress {
+  padding: 12px 16px 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+.scan-progress__bar {
+  width: 100%;
+  height: 4px;
+  background: var(--border-soft);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.scan-progress__fill {
+  height: 100%;
+  background: var(--brand);
+  border-radius: 2px;
+  transition: width 120ms linear;
+}
+.scan-progress__caption {
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: var(--text-faint);
+}
+
+/* Scan match table */
+
+.data-table--scan th,
+.data-table--scan td {
+  font-size: 12px;
+}
+.data-table--scan td {
+  max-width: 360px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.scan-table-name {
+  font-weight: 500;
+  color: var(--text);
+}
+.scan-match-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: var(--success-soft);
+  color: var(--success);
+  font-weight: 600;
+}
+.scan-sample {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* =====================================================================
+   LLM + MCP mode: bucketed results
+   =================================================================== */
+
+.llm-summary {
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border-soft);
+  font-style: italic;
+}
+
+.llm-section {
+  border-bottom: 1px solid var(--border-soft);
+}
+.llm-section:last-child { border-bottom: 0; }
+
+.llm-section__header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.llm-section__label {
+  color: var(--text);
+}
+.llm-section__count {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--brand);
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #dde7ff;
+  letter-spacing: 0;
+}
+
+.llm-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+.llm-item {
+  padding: 5px 16px;
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.55;
+}
+.llm-item:hover { background: var(--bg-row-hover); }
+.llm-item__name {
+  font-weight: 500;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--brand);
+}
+.llm-item__sep {
+  color: var(--text-faint);
+  margin: 0 2px;
+}
+.llm-item__detail {
+  color: var(--text-dim);
+}
+
+/* Clickable deep-link back into the IP Fabric UI, generated for the LLM
+ * Interactive Session and CVE Security Status results (per the
+ * ipf-ui-link contract). Sits inside .llm-item__name, so it inherits the
+ * mono/brand treatment; the underline on hover marks it as actionable.
+ * Items without a resolvable target render as plain text, unchanged. */
+.llm-item__name .ipf-ui-link {
+  color: var(--brand);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--brand);
+  cursor: pointer;
+}
+.llm-item__name .ipf-ui-link:hover,
+.llm-item__name .ipf-ui-link:focus-visible {
+  color: #c01f60;                 /* IP Fabric magenta */
+  border-bottom-color: currentColor;
+}
+
+/* Elapsed-time pill shown to the right of the loading status while
+ * Claude+MCP is working. Sits on the right edge of the status row,
+ * separated from the primary message by a flex spacer. */
+.llm-elapsed {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-soft);
+}

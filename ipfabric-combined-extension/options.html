@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>IP Fabric Global Search + LLM + CVE + Diff Dashboard · Options</title>
+  <style>
+    :root {
+      --bg: #0e1117;
+      --bg-soft: #14181f;
+      --border: rgba(255, 255, 255, 0.09);
+      --border-strong: rgba(255, 255, 255, 0.18);
+      --text: #e7eaef;
+      --text-dim: #9aa3b2;
+      --text-faint: #6b7280;
+      --accent: #5eead4;
+      --accent-dim: rgba(94, 234, 212, 0.18);
+      --danger: #fb7185;
+      --ok: #34d399;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      background:
+        radial-gradient(1100px 600px at 80% -10%, rgba(94, 234, 212, 0.07), transparent 60%),
+        radial-gradient(900px 500px at -10% 110%, rgba(147, 197, 253, 0.05), transparent 60%),
+        var(--bg);
+      color: var(--text);
+      font-family: "SF Pro Text", -apple-system, "Segoe UI Variable Text",
+                   "Segoe UI", system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 56px 32px 80px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+    .brand .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent-dim);
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin: 0 0 6px;
+    }
+    .sub {
+      color: var(--text-dim);
+      margin-bottom: 36px;
+      max-width: 60ch;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 18px;
+    }
+
+    .row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .row:last-child { margin-bottom: 0; }
+    label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .help {
+      font-size: 12.5px;
+      color: var(--text-dim);
+    }
+    input[type="text"], input[type="password"], input[type="url"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0a0d12;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      color: var(--text);
+      font: inherit;
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 13px;
+      transition: border-color 120ms ease, box-shadow 120ms ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    .actions {
+      display: flex; align-items: center; gap: 10px;
+      padding-top: 8px;
+    }
+    .btn {
+      all: unset; cursor: pointer;
+      padding: 9px 16px;
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #07221d;
+      transition: filter 120ms ease, transform 120ms ease;
+    }
+    .btn:hover { filter: brightness(1.06); }
+    .btn:active { transform: translateY(1px); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-dim);
+      border: 1px solid var(--border-strong);
+    }
+    .btn-ghost:hover { color: var(--text); }
+    .status {
+      font-size: 12.5px;
+      color: var(--text-dim);
+      margin-left: auto;
+    }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--danger); }
+
+    .tools {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .pill {
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-strong);
+      color: var(--text-dim);
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 11.5px;
+      cursor: pointer;
+    }
+    .pill:hover { color: var(--text); border-color: var(--accent); }
+    .pill.active { color: var(--accent); border-color: var(--accent); }
+
+    .kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-strong);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-dim);
+      font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size: 11.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand"><span class="dot"></span> IP Fabric · Global Search + LLM Interactive Session</div>
+    <h1>Options</h1>
+    <p class="sub">
+      Two overlays on one bar: <strong>Global Search</strong> (top-left) and the
+      <strong>LLM Interactive Session</strong> (top-right). Each can be shown or
+      hidden independently below. The bar can be summoned with the toolbar icon
+      or <span class="kbd">Ctrl/Cmd</span> + <span class="kbd">Shift</span> +
+      <span class="kbd">F</span>.
+    </p>
+
+    <div class="card">
+      <div class="row">
+        <label>Display</label>
+        <div class="help" style="margin-bottom: 10px;">
+          Choose which overlays appear on the IP Fabric page. If Global Search
+          and the LLM Interactive Session are both off, the top bar is removed
+          entirely and the page is left untouched.
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; text-transform: none; color: var(--text);">
+            <input type="checkbox" id="showGlobalSearch" style="margin-top: 3px;" />
+            <span>
+              <strong style="font-size: 13px;">Show Global Search (top-left)</strong><br>
+              <span class="help" style="font-size: 12px;">The embedded Global Search bar and its results.</span>
+            </span>
+          </label>
+          <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; text-transform: none; color: var(--text);">
+            <input type="checkbox" id="showLlmSession" style="margin-top: 3px;" />
+            <span>
+              <strong style="font-size: 13px;">Show LLM Interactive Session (top-right)</strong><br>
+              <span class="help" style="font-size: 12px;">The free-form prompt bar that asks Claude to work via the IP Fabric MCP server.</span>
+            </span>
+          </label>
+          <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; text-transform: none; color: var(--text);">
+            <input type="checkbox" id="showCveStatus" style="margin-top: 3px;" />
+            <span>
+              <strong style="font-size: 13px;">Show CVE Security Status</strong><br>
+              <span class="help" style="font-size: 12px;">The <strong>CVE Security Status</strong> label and <strong>Evaluate</strong> button overlaid on the IP Fabric header row. Clicking Evaluate cross-references the deployment's devices and OS versions against published CVE vulnerability sources and shows the results below the bar.</span>
+            </span>
+          </label>
+          <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; text-transform: none; color: var(--text);">
+            <input type="checkbox" id="showDiffDashboard" style="margin-top: 3px;" />
+            <span>
+              <strong style="font-size: 13px;">Show Diff Dashboard</strong><br>
+              <span class="help" style="font-size: 12px;">The <strong>Diff Dashboard</strong> button overlaid on the IP Fabric header row. It opens a panel that compares any Technology/Inventory table column between the current snapshot and another snapshot you choose. Turning this off hides the button and panel completely.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <label>Diff Dashboard</label>
+        <div class="help" style="margin-bottom: 10px;">
+          Settings for the Diff Dashboard overlay (compare a table column across
+          snapshots). Show/hide the whole feature with the “Show Diff Dashboard”
+          toggle above.
+        </div>
+        <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; text-transform: none; color: var(--text);">
+          <input type="checkbox" id="diffIgnoreVolatile" style="margin-top: 3px;" />
+          <span>
+            <strong style="font-size: 13px;">Ignore volatile fields (age, uptime)</strong><br>
+            <span class="help" style="font-size: 12px;">Recommended. When comparing nested values such as route next-hops, ignore timers like <code>age</code> so a next-hop only counts as “changed” when the real routing data (IP, interface, metric, AD) changes.</span>
+          </span>
+        </label>
+        <div class="actions" style="margin-top: 12px;">
+          <button class="btn btn-ghost" id="diffResetPos" type="button">Reset Diff Dashboard position &amp; size</button>
+          <span class="status" id="diffStatus"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <label>Search mode</label>
+        <div class="help" style="margin-bottom: 10px;">
+          How the extension finds tables that contain your search term.
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; text-transform: none; color: var(--text);">
+            <input type="radio" name="searchMode" id="modeScan" value="scan" style="margin-top: 3px;" />
+            <span>
+              <strong style="font-size: 13px;">Cycle every table (recommended)</strong><br>
+              <span class="help" style="font-size: 12px;">Hits every IP Fabric table API in parallel using your browser session cookie and checks if the term appears in any row. Slower (5–30s per search) but finds exact matches against the actual data.</span>
+            </span>
+          </label>
+          <label style="display: flex; gap: 10px; align-items: flex-start; cursor: pointer; text-transform: none; color: var(--text);">
+            <input type="radio" name="searchMode" id="modeMcp" value="mcp" style="margin-top: 3px;" />
+            <span>
+              <strong style="font-size: 13px;">LLM and MCP Server</strong><br>
+              <span class="help" style="font-size: 12px;">Runs an agentic loop: the extension calls Claude with the IP Fabric MCP server's tools enumerated, then proxies each of Claude's tool calls to the MCP server itself and feeds the results back. After a few turns Claude returns a synthesized answer grouped into <strong>networks</strong>, <strong>devices</strong>, <strong>sites</strong>, <strong>configs</strong>, and <strong>snapshots</strong>. Slower (typically 15–45s, depending on how many tool calls Claude makes) and costs Anthropic API tokens per search, but produces a reasoned answer rather than a list of candidate tables. Every Claude turn and MCP call is logged to the service-worker console.</span>
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="help" style="margin-bottom: 4px; padding: 10px 12px; border: 1px solid var(--border-strong, #2a3550); border-left: 3px solid #5b8cff; border-radius: 6px; background: #1a2030; color: var(--text, #e7eaef);">
+          <strong style="color: #ffffff;">No keys are bundled with this extension — paste your own below.</strong><br>
+          <span style="font-size: 12px; color: #c4ccda;">
+            Your IP Fabric <code>Authorization</code> token and (for LLM mode) your
+            Anthropic API key are stored only in this browser's
+            <code>chrome.storage.sync</code> — never in a file inside the extension.
+            They are not shared with anyone you give the extension to.
+          </span>
+        </div>
+      </div>
+      <div class="row">
+        <label for="mcpUrl">MCP endpoint URL</label>
+        <input id="mcpUrl" type="url" placeholder="https://demo2.eu.ipfabric.io/mcp" />
+        <div class="help">The full URL of the MCP HTTP endpoint.</div>
+      </div>
+      <div class="row">
+        <label for="authHeader">Authorization header</label>
+        <input id="authHeader" type="password" placeholder="Bearer eyJhbGciOi..." />
+        <div class="help">
+          Sent as the <code>Authorization</code> header on every request. Include
+          the <code>Bearer</code> prefix.
+        </div>
+      </div>
+      <div class="row">
+        <label for="llmProvider">LLM provider <span style="text-transform:none; color: var(--text-faint);">(for LLM and MCP Server mode + the Interactive Session)</span></label>
+        <select id="llmProvider">
+          <option value="claude">Anthropic Claude</option>
+          <option value="openai">OpenAI</option>
+          <option value="azure">Azure OpenAI</option>
+          <option value="groq">Groq</option>
+          <option value="ollama">Ollama (local)</option>
+          <option value="lmstudio">LM Studio (local)</option>
+          <option value="localai">LocalAI (local)</option>
+          <option value="vllm">vLLM (local/self-hosted)</option>
+          <option value="openai-compatible">Other OpenAI-compatible (custom URL)</option>
+        </select>
+        <div class="help">
+          Choose which LLM powers the agentic loop. <strong>Anthropic Claude</strong> is the default and
+          unchanged. Every other option speaks the OpenAI <code>/chat/completions</code> API — picking one
+          pre-fills its base URL below (you can still edit it). Local servers like Ollama, LM Studio,
+          LocalAI, and vLLM also avoid the Anthropic CORS issue entirely. Tool-calling quality depends on
+          the chosen model; small/local models may have weaker tool use, which mainly affects the
+          MCP-driven modes.
+        </div>
+      </div>
+
+      <div class="row" id="openaiFields" hidden>
+        <label for="llmBaseUrl">Base URL <span style="text-transform:none; color: var(--text-faint);">(OpenAI-compatible <code>/chat/completions</code> endpoint)</span></label>
+        <input id="llmBaseUrl" type="url" placeholder="http://localhost:1234/v1" autocomplete="off" />
+        <div class="help">
+          The base URL of the API, ending in <code>/v1</code>. Pre-filled when you choose a provider
+          above. Examples: <code>https://api.openai.com/v1</code> (OpenAI),
+          <code>https://api.groq.com/openai/v1</code> (Groq),
+          <code>http://localhost:11434/v1</code> (Ollama),
+          <code>http://localhost:1234/v1</code> (LM Studio),
+          <code>http://localhost:8080/v1</code> (LocalAI),
+          <code>http://localhost:8000/v1</code> (vLLM). For Azure OpenAI use your resource URL, e.g.
+          <code>https://&lt;resource&gt;.openai.azure.com/openai/deployments/&lt;deployment&gt;</code>.
+          On Save you'll be asked to grant the extension permission to reach this host.
+        </div>
+
+        <label for="llmModel" style="margin-top: 12px;">Model</label>
+        <input id="llmModel" type="text" placeholder="gpt-4o-mini / llama3.1 / mixtral …" autocomplete="off" />
+        <div class="help">
+          The model name as your endpoint expects it (e.g. <code>gpt-4o-mini</code>,
+          <code>llama-3.1-70b-versatile</code> for Groq, <code>llama3.1</code> for Ollama). Leave blank to
+          use a sensible default (<code>gpt-4o-mini</code> for OpenAI-compatible providers).
+        </div>
+
+        <label for="openaiApiKey" style="margin-top: 12px;">API key <span style="text-transform:none; color: var(--text-faint);">(optional for local servers)</span></label>
+        <input id="openaiApiKey" type="password" placeholder="sk-... (leave blank for local/no-auth servers)" autocomplete="off" />
+        <div class="help">
+          Sent as <code>Authorization: Bearer …</code> to your endpoint. Stored in
+          <code>chrome.storage.sync</code>. Required for hosted services (OpenAI, Groq, Azure); leave
+          blank for local servers (Ollama, LM Studio, LocalAI, vLLM) that don't require a key.
+        </div>
+      </div>
+
+      <div class="row">
+        <label for="anthropicApiKey">Anthropic API key <span style="text-transform:none; color: var(--text-faint);">(required when provider is Anthropic Claude)</span></label>
+        <input id="anthropicApiKey" type="password" placeholder="sk-ant-api03-..." autocomplete="off" />
+        <div class="help">
+          Your Anthropic API key. Stored in <code>chrome.storage.sync</code> (synced to your Google
+          account) and sent only to <code>api.anthropic.com</code>.
+          Treat it like a password — anyone with access to your browser profile can read it.
+          Manage keys at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer">console.anthropic.com</a>.
+        </div>
+        <div class="help" style="margin-top: 8px; color: var(--text-dim);">
+          <strong style="color: var(--text);">Seeing a 401 “CORS requests are not allowed for this Organization”?</strong>
+          That is an Anthropic <em>organization</em> setting, not an extension bug. The extension
+          already strips the browser <code>Origin</code> header from its Anthropic requests to avoid
+          CORS mode, but if your org explicitly disables CORS the call is still blocked. Fix it in the
+          <a href="https://console.anthropic.com/settings" target="_blank" rel="noopener noreferrer">Anthropic Console</a>
+          → organization Settings → enable <strong>Allow CORS requests</strong> (or use a key from an
+          org that permits them).
+        </div>
+      </div>
+      <div class="row">
+        <label for="toolName">Tool name <span style="text-transform:none; color: var(--text-faint);">(optional)</span></label>
+        <input id="toolName" type="text" placeholder="auto-detect (looks for global_search)" />
+        <div class="help">
+          Override the tool the overlay calls. Leave blank to auto-pick one whose
+          name looks like a global search.
+        </div>
+        <div class="tools" id="toolsList"></div>
+      </div>
+      <div class="row">
+        <label for="argName">Query argument name <span style="text-transform:none; color: var(--text-faint);">(optional)</span></label>
+        <input id="argName" type="text" placeholder="auto-detect (query / search / term ...)" />
+        <div class="help">
+          Override the JSON argument name the query is passed under. Leave blank
+          to auto-pick one from the tool's schema.
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" id="saveBtn">Save</button>
+        <button class="btn btn-ghost" id="testBtn">Test MCP connection</button>
+        <button class="btn btn-ghost" id="testLlmBtn" title="Verifies the configured LLM provider (Anthropic Claude or your OpenAI-compatible endpoint) and connectivity, without the MCP connector. Use this to isolate whether 'LLM and MCP Server' search failures are MCP-side or LLM-side.">Test LLM</button>
+        <span class="status" id="status"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <label>How it works</label>
+        <div class="help">
+          The extension speaks MCP's Streamable HTTP transport directly from the
+          background service worker — it does <em>not</em> spawn <code>npx mcp-remote</code>.
+          On first use it runs <code>initialize</code>, sends
+          <code>notifications/initialized</code>, then <code>tools/list</code> to
+          find a global-search tool, and finally <code>tools/call</code> with your
+          query.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

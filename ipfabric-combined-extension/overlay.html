@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="color-scheme" content="light" />
+  <title>IP Fabric Global Search</title>
+  <link rel="stylesheet" href="overlay.css" />
+</head>
+<body>
+  <main class="panel" role="search" aria-label="IP Fabric Combined Toolbar">
+
+    <!-- The always-visible bar. Color matches the IP Fabric brand (#254083).
+         Left group  = Global Search.  Right group = LLM Interactive Session.
+         Either group can be independently hidden via body.hide-gs /
+         body.hide-llm (driven by the options page). -->
+    <div class="bar">
+
+      <!-- ===== LEFT: Global Search ===== -->
+      <div class="bar__group bar__group--gs" id="gsGroup">
+        <span class="bar__brand">
+          <span class="bar__logo" aria-hidden="true">IP</span>
+          <span class="bar__brand-label">Global Search</span>
+        </span>
+
+        <div class="bar__search">
+          <svg class="bar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input id="query" class="bar__input" type="text"
+                 placeholder="Search hostnames, IPs, MACs, sites, vendors…"
+                 autocomplete="off" spellcheck="false" />
+          <button class="bar__clear" type="button" id="clearInput"
+                  data-action="clear-input"
+                  title="Clear search" aria-label="Clear search" hidden>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <button class="bar__btn" type="button" data-action="search" id="searchBtn">Search</button>
+        <button class="bar__icon-btn" type="button" data-action="toggle-results"
+                id="gsToggleBtn" title="Show/hide results" aria-label="Show or hide results" hidden>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </button>
+        <button class="bar__icon-btn" type="button" data-action="options"
+                title="Options" aria-label="Open options">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Flexible spacer separates the two groups across the bar. -->
+      <div class="bar__spacer"></div>
+
+      <!-- ===== RIGHT: LLM Interactive Session ===== -->
+      <div class="bar__group bar__group--llm" id="llmGroup">
+        <span class="bar__brand bar__brand--llm">
+          <span class="bar__brand-label">LLM Interactive Session</span>
+        </span>
+
+        <div class="bar__search bar__search--llm">
+          <input id="prompt" class="bar__input" type="text"
+                 placeholder="Enter LLM Prompt …"
+                 autocomplete="off" spellcheck="false" />
+          <button class="bar__clear" type="button" id="clearPrompt"
+                  data-action="clear-prompt"
+                  title="Clear prompt" aria-label="Clear prompt" hidden>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <button class="bar__btn" type="button" data-action="submit-llm" id="submitBtn">Submit</button>
+        <button class="bar__icon-btn" type="button" data-action="toggle-llm-results"
+                id="llmToggleBtn" title="Show/hide results" aria-label="Show or hide results" hidden>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </button>
+        <button class="bar__icon-btn" type="button" data-action="options"
+                title="Options" aria-label="Open options">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Restore group: shown ONLY when BOTH Global Search and the LLM
+           session are hidden, so the user always has a way back into
+           Options to re-enable one or both. -->
+      <div class="bar__group bar__group--restore" id="restoreGroup">
+        <span class="bar__brand bar__brand--restore">
+          <span class="bar__logo" aria-hidden="true">IP</span>
+          <span class="bar__brand-label">IP Fabric Toolbar</span>
+        </span>
+        <span class="bar__spacer"></span>
+        <button class="bar__btn" type="button" data-action="options" id="restoreOptionsBtn">Show options</button>
+        <button class="bar__icon-btn" type="button" data-action="options"
+                title="Options" aria-label="Open options">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dropdown row: Global Search results (left) + LLM results (right).
+         Each is anchored under its own group. -->
+    <div class="dropdown-row">
+      <!-- Global Search dropdown -->
+      <div class="dropdown dropdown--gs" id="dropdown" hidden>
+        <div class="results-meta" id="resultsMeta" hidden>
+          <span class="results-meta__primary" id="resultsMetaText"></span>
+          <span class="spacer"></span>
+          <span class="results-meta__tool" id="resultsTool"></span>
+          <button class="dropdown__report" type="button" data-action="view-report-gs"
+                  title="Open results as an HTML report in a new tab"
+                  aria-label="View HTML report in a new tab">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h6v6"></path><path d="M10 14L21 3"></path>
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            </svg>
+          </button>
+          <button class="dropdown__report" type="button" data-action="save-report-gs"
+                  title="Save results as an HTML report file"
+                  aria-label="Save HTML report file">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+          <button class="dropdown__close" type="button" data-action="clear"
+                  title="Clear results" aria-label="Clear results">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <section class="results" id="results" aria-live="polite"></section>
+      </div>
+
+      <!-- LLM dropdown -->
+      <div class="dropdown dropdown--llm" id="llmDropdown" hidden>
+        <div class="results-meta" id="llmResultsMeta" hidden>
+          <span class="results-meta__primary" id="llmResultsMetaText"></span>
+          <span class="spacer"></span>
+          <span class="results-meta__tool" id="llmResultsTool"></span>
+          <button class="dropdown__report" type="button" data-action="view-report-llm"
+                  title="Open results as an HTML report in a new tab"
+                  aria-label="View HTML report in a new tab">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h6v6"></path><path d="M10 14L21 3"></path>
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            </svg>
+          </button>
+          <button class="dropdown__report" type="button" data-action="save-report-llm"
+                  title="Save results as an HTML report file"
+                  aria-label="Save HTML report file">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+          <button class="dropdown__close" type="button" data-action="clear-llm"
+                  title="Clear results" aria-label="Clear results">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <section class="results" id="llmResults" aria-live="polite"></section>
+      </div>
+
+      <!-- CVE Security Status dropdown. Spans the full width of the row
+           (its own line, below the GS + LLM dropdowns) so the CVE
+           evaluation results read clearly. Rendered identically to the
+           Global Search / LLM Interactive Session results. -->
+      <div class="dropdown dropdown--cve" id="cveDropdown" hidden>
+        <div class="results-meta" id="cveResultsMeta" hidden>
+          <span class="results-meta__primary" id="cveResultsMetaText"></span>
+          <span class="spacer"></span>
+          <span class="results-meta__tool" id="cveResultsTool"></span>
+          <button class="dropdown__report" type="button" data-action="view-report-cve"
+                  title="Open results as an HTML report in a new tab"
+                  aria-label="View HTML report in a new tab">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 3h6v6"></path><path d="M10 14L21 3"></path>
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            </svg>
+          </button>
+          <button class="dropdown__report" type="button" data-action="save-report-cve"
+                  title="Save results as an HTML report file"
+                  aria-label="Save HTML report file">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </button>
+          <button class="dropdown__close" type="button" data-action="clear-cve"
+                  title="Clear results" aria-label="Clear results">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <section class="results" id="cveResults" aria-live="polite"></section>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Reusable markup templates ============================== -->
+
+  <template id="tpl-loading">
+    <div class="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Searching IP Fabric…</span>
+    </div>
+  </template>
+
+  <template id="tpl-error">
+    <div class="status status--error">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span data-message></span>
+    </div>
+  </template>
+
+  <template id="tpl-empty">
+    <div class="status status--muted">
+      <span>The server returned no content.</span>
+    </div>
+  </template>
+
+  <!-- API endpoint search results table -->
+  <template id="tpl-endpoint-table">
+    <div class="table-wrap">
+      <table class="data-table data-table--endpoints">
+        <thead>
+          <tr>
+            <th class="th-expander"></th>
+            <th class="th-method">Method</th>
+            <th class="th-path">Path</th>
+            <th class="th-summary">Summary</th>
+            <th class="th-tags">Tags</th>
+            <th class="th-score">Score</th>
+            <th class="th-ok">OK</th>
+          </tr>
+        </thead>
+        <tbody data-body></tbody>
+      </table>
+    </div>
+  </template>
+
+  <template id="tpl-endpoint-row">
+    <tr class="data-row" data-row>
+      <td class="td-expander">
+        <span class="expander" aria-hidden="true">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 6 15 12 9 18"></polyline>
+          </svg>
+        </span>
+      </td>
+      <td class="td-method"><span class="method" data-method></span></td>
+      <td class="td-path"><code class="path" data-path></code></td>
+      <td class="td-summary" data-summary></td>
+      <td class="td-tags" data-tags></td>
+      <td class="td-score">
+        <div class="score">
+          <div class="score__bar"><div class="score__bar-fill" data-bar></div></div>
+          <span class="score__value" data-score></span>
+        </div>
+      </td>
+      <td class="td-ok" data-ok></td>
+    </tr>
+  </template>
+
+  <template id="tpl-endpoint-detail">
+    <tr class="data-row-detail" data-detail hidden>
+      <td colspan="7">
+        <dl class="detail-grid" data-grid></dl>
+      </td>
+    </tr>
+  </template>
+
+  <!-- Generic data-array table -->
+  <template id="tpl-data-table">
+    <div class="table-wrap">
+      <table class="data-table data-table--generic">
+        <thead data-head></thead>
+        <tbody data-body></tbody>
+      </table>
+    </div>
+  </template>
+
+  <script src="overlay.js"></script>
+</body>
+</html>

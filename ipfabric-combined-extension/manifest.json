@@ -1,0 +1,97 @@
+{
+  "manifest_version": 3,
+  "name": "IP Fabric Global Search + LLM Interactive Session + Diff Dashboard",
+  "version": "5.1.3",
+  "description": "Combined IP Fabric toolbar: embedded Global Search (top-left), an LLM Interactive Session (top-right) powered by your choice of LLM (Anthropic Claude or any OpenAI-compatible endpoint) + the IP Fabric MCP server, a CVE Security Status evaluator on the header row, and a Diff Dashboard that compares any Technology/Inventory table column across snapshots. Each overlay can be shown or hidden independently in Options.",
+  "permissions": [
+    "storage",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "https://demo2.eu.ipfabric.io/*",
+    "https://api.anthropic.com/*"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "anthropic_cors",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://demo2.eu.ipfabric.io/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": [
+        "https://demo2.eu.ipfabric.io/*"
+      ],
+      "js": [
+        "diff-content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_title": "Focus IP Fabric search",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "focus-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Focus the IP Fabric search input"
+    },
+    "toggle-diff-dashboard": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+D",
+        "mac": "Command+Shift+D"
+      },
+      "description": "Show or hide the Diff Dashboard panel"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "overlay.html",
+        "overlay.css",
+        "overlay.js"
+      ],
+      "matches": [
+        "https://demo2.eu.ipfabric.io/*"
+      ]
+    }
+  ]
+}

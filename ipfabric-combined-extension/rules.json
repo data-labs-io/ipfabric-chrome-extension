@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "origin", "operation": "remove" },
+        { "header": "sec-fetch-mode", "operation": "remove" },
+        { "header": "sec-fetch-site", "operation": "remove" },
+        { "header": "sec-fetch-dest", "operation": "remove" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||api.anthropic.com/",
+      "resourceTypes": ["xmlhttprequest", "other"]
+    }
+  }
+]
